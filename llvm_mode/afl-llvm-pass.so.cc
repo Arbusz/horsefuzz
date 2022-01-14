@@ -330,8 +330,8 @@ bool AFLCoverage::runOnModule(Module &M) {
                 Type::getInt8PtrTy(C), // uint8_t *callee
               };
               FunctionType *FTy = FunctionType::get(Type::getVoidTy(C), Args, false);
-              Constant *funcProfil = M.getOrInsertFunction("llvm_profiling_fcov", FTy);
-              IRB.CreateCall(funcProfil, {callerName, calleeName});
+              auto funcProfil = M.getOrInsertFunction("llvm_profiling_fcov", FTy);
+              IRB.CreateCall(funcProfil.getCallee(), {callerName, calleeName});
             } else {
               nb_indirected_calls++;
             }
@@ -340,8 +340,8 @@ bool AFLCoverage::runOnModule(Module &M) {
           // Clear up profiling at return of the main function
           if (funcName.compare("main") == 0 && isa<ReturnInst>(&inst)) {
             FunctionType *FTy = FunctionType::get(Type::getVoidTy(C), false);
-            Constant *funcProfil = M.getOrInsertFunction("llvm_profiling_finish", FTy);
-            IRB.CreateCall(funcProfil);
+            auto funcProfil = M.getOrInsertFunction("llvm_profiling_finish", FTy);
+            IRB.CreateCall(funcProfil.getCallee());
           }
         }
       }
@@ -430,7 +430,7 @@ bool AFLCoverage::runOnModule(Module &M) {
   map<string, int>::iterator it2;
   for (it2 = fb.begin(); it2 != fb.end(); it2++)
     vec.push_back(make_pair(it2->first, it2->second));
-  sort(vec.begin(), vec.end(), sortByVal);
+  std::sort(vec.begin(), vec.end(), sortByVal);
   for (int i = 0; i < (int) vec.size(); i++)
     outfile1 << vec[i].first.c_str() << ": " << vec[i].second << "\n";
 
