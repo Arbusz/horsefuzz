@@ -492,7 +492,7 @@ void llvm_profiling_fcov(const char* caller, const char* callee) {
   if (fcall_set == NULL)
     fcall_set = hashset_create();
 
-  if(!hashset_is_member(fcall_set, cksum)) {
+  if(!hashset_is_member(fcall_set, (void*) cksum)) {
     hashset_add(fcall_set, (void*) cksum);
 
     char* binary = getenv("HF_BINARY");
